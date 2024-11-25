@@ -1,0 +1,70 @@
+name: Tests
+
+on:
+  push:
+    branches:
+      - main  # Trigger on push to the main branch
+  pull_request:
+    branches:
+      - main  # Trigger on pull requests to the main branch
+    types:
+      - opened
+      - ready_for_review
+      - reopened
+      - synchronize
+
+jobs:
+  test_package:
+    name: Tests
+    runs-on: ubuntu-latest  # Use the latest Ubuntu runner
+
+    steps:
+      - uses: actions/checkout@v4  # Checkout the repository
+
+      # Set up Python environment for Backend
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"  # Set Python version
+
+      - name: Install Backend Dependencies
+        run: |
+          cd backend  # Change to the backend directory
+          python -m pip install -r requirements.txt
+          python -m pip install coverage pytest-cov
+
+      - name: Run Backend Tests with Coverage
+        run: |
+          cd backend  # Change to the backend directory
+          python -m pytest -vv --cov=. --cov-report=xml --cov-report=html --cov-report=term-missing --cov-fail-under=80 --junitxml=coverage-junit.xml
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: backend-coverage
+          path: |
+            backend/coverage.xml  # Correct path to backend coverage
+            backend/coverage-junit.xml  # Correct path to backend JUnit report
+            backend/htmlcov/  # Correct path to backend HTML coverage report
+
+      # Set up Node.js environment for Frontend
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'  # Set the Node.js version
+
+      - name: Install Frontend Dependencies
+        run: |
+          cd frontend  # Change to the frontend directory
+          npm install
+
+      - name: Run Frontend Tests with Coverage
+        run: |
+          cd frontend  # Change to the frontend directory
+          npm run test -- --coverage
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: frontend-coverage
+          path: |
+            frontend/coverage/  # Correct path to frontend coverage
+            frontend/coverage/lcov-report/  # Correct path to frontend lcov report
