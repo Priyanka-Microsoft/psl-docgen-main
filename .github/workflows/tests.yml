@@ -29,22 +29,20 @@ jobs:
 
       - name: Install Backend Dependencies
         run: |
-          cd backend  # Change to the backend directory
           python -m pip install -r requirements.txt
           python -m pip install coverage pytest-cov
 
       - name: Run Backend Tests with Coverage
         run: |
-          cd backend  # Change to the backend directory
           python -m pytest -vv --cov=. --cov-report=xml --cov-report=html --cov-report=term-missing --cov-fail-under=80 --junitxml=coverage-junit.xml
 
       - uses: actions/upload-artifact@v4
         with:
           name: backend-coverage
           path: |
-            backend/coverage.xml  # Correct path to backend coverage
-            backend/coverage-junit.xml  # Correct path to backend JUnit report
-            backend/htmlcov/  # Correct path to backend HTML coverage report
+            coverage.xml  # Correct path to backend coverage
+            coverage-junit.xml  # Correct path to backend JUnit report
+            htmlcov/  # Correct path to backend HTML coverage report
 
       # Set up Node.js environment for Frontend
       - name: Set up Node.js
@@ -54,17 +52,15 @@ jobs:
 
       - name: Install Frontend Dependencies
         run: |
-          cd frontend  # Change to the frontend directory
           npm install
 
       - name: Run Frontend Tests with Coverage
         run: |
-          cd frontend  # Change to the frontend directory
           npm run test -- --coverage
 
       - uses: actions/upload-artifact@v4
         with:
           name: frontend-coverage
           path: |
-            frontend/coverage/  # Correct path to frontend coverage
-            frontend/coverage/lcov-report/  # Correct path to frontend lcov report
+            coverage/  # Correct path to frontend coverage
+            coverage/lcov-report/  # Correct path to frontend lcov report
