@@ -14,8 +14,8 @@ on:
       - synchronize
 
 jobs:
-  test_package:
-    name: Tests
+  backend_tests:
+    name: Backend Tests
     runs-on: ubuntu-latest  # Use the latest Ubuntu runner
 
     steps:
@@ -44,6 +44,13 @@ jobs:
             coverage.xml  # Correct path to backend coverage
             coverage-junit.xml  # Correct path to backend JUnit report
             htmlcov/  # Correct path to backend HTML coverage report
+
+  frontend_tests:
+    name: Frontend Tests
+    runs-on: ubuntu-latest  # Use the latest Ubuntu runner
+
+    steps:
+      - uses: actions/checkout@v4  # Checkout the repository
 
       # Set up Node.js environment for Frontend
       - name: Set up Node.js
