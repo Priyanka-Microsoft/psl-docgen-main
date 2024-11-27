@@ -58,20 +58,30 @@ jobs:
         with:
           node-version: '20'  # Set the Node.js version
       
+      - name: Cache npm dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+      
       - name: Navigate to frontend directory
         run: cd frontend
 
       - name: Install Frontend Dependencies
         run: |
-          npm install
+          cd frontend  # Change to the frontend directory
+          npm install  # Install dependencies from frontend/package.json
 
       - name: Run Frontend Tests with Coverage
         run: |
+          cd frontend  # Change to the frontend directory
           npm run test -- --coverage
 
       - uses: actions/upload-artifact@v4
         with:
           name: frontend-coverage
           path: |
-            coverage/  # Correct path to frontend coverage
-            coverage/lcov-report/  # Correct path to frontend lcov report
+            frontend/coverage/  # Correct path to frontend coverage
+            frontend/coverage/lcov-report/  # Correct path to frontend lcov report
