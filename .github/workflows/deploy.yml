@@ -53,7 +53,6 @@ jobs:
             --location WestUS \
             --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }} \
             --template-file infra/main.bicep \
-            --parameters solutionPrefix=${{ env.SOLUTION_PREFIX }} cosmosLocation=eastus2
 
       - name: List KeyVaults and Store in Array
         id: list_keyvaults
