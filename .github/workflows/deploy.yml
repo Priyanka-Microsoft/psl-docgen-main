@@ -1,17 +1,17 @@
 name: CI-Validate Deployment
 
 on:
-    push:
-      branches:
-        - main  # Trigger on push to the main branch
-    pull_request:
-      branches:
-        - main  # Trigger on pull requests to the main branch
-      types:
-        - opened
-        - ready_for_review
-        - reopened
-        - synchronize
+  push:
+    branches:
+      - main  # Trigger on push to the main branch
+  pull_request:
+    branches:
+      - main  # Trigger on pull requests to the main branch
+    types:
+      - opened
+      - ready_for_review
+      - reopened
+      - synchronize
 
 jobs:
   deploy:
@@ -33,30 +33,6 @@ jobs:
       - name: Install Bicep CLI
         run: az bicep install
 
-      - name: Generate Resource Group Name
-        id: generate_rg_name
-        run: |
-          echo "Generating a unique resource group name..."
-          TIMESTAMP=$(date +%Y%m%d%H%M%S)
-          COMMON_PART="pslautomationCli"
-          UNIQUE_RG_NAME="${COMMON_PART}${TIMESTAMP}"
-          echo "RESOURCE_GROUP_NAME=${UNIQUE_RG_NAME}" >> $GITHUB_ENV
-          echo "Generated RESOURCE_GROUP_PREFIX: ${UNIQUE_RG_NAME}"
-      
-      - name: Check and Create Resource Group
-        id: check_create_rg
-        run: |
-          echo "RESOURCE_GROUP: ${{ env.RESOURCE_GROUP_NAME }}"
-          set -e  
-          echo "Checking if resource group exists..."
-          rg_exists=$(az group exists --name ${{ env.RESOURCE_GROUP_NAME }})
-          if [ "$rg_exists" = "false" ]; then
-            echo "Resource group does not exist. Creating..."
-            az group create --name ${{ env.RESOURCE_GROUP_NAME }} --location uksouth || { echo "Error creating resource group"; exit 1; }
-          else
-            echo "Resource group already exists."
-          fi
-      
       - name: Generate Unique Solution Prefix
         id: generate_solution_prefix
         run: |
@@ -67,34 +43,34 @@ jobs:
           UNIQUE_SOLUTION_PREFIX="${COMMON_PART}${UPDATED_TIMESTAMP}"
           echo "SOLUTION_PREFIX=${UNIQUE_SOLUTION_PREFIX}" >> $GITHUB_ENV
           echo "Generated SOLUTION_PREFIX: ${UNIQUE_SOLUTION_PREFIX}"
-          
-      - name: Deploy Bicep Template
+
+      - name: Deploy Bicep Template at Subscription Level
         id: deploy
         run: |
           set -e
-          az deployment group create \
-            --resource-group ${{ env.RESOURCE_GROUP_NAME }} \
+          echo "Deploying Bicep template at the subscription level..."
+          az deployment sub create \
+            --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }} \
             --template-file infra/main.bicep \
             --parameters solutionPrefix=${{ env.SOLUTION_PREFIX }} cosmosLocation=eastus2
 
       - name: List KeyVaults and Store in Array
         id: list_keyvaults
         run: |
-
           set -e
-          echo "Listing all KeyVaults in the resource group ${RESOURCE_GROUP_NAME}..."
+          echo "Listing all KeyVaults in the subscription..."
           
-          # Get the list of KeyVaults in the specified resource group
-          keyvaults=$(az resource list --resource-group ${{ env.RESOURCE_GROUP_NAME }} --query "[?type=='Microsoft.KeyVault/vaults'].name" -o tsv)
+          # Get the list of KeyVaults in the subscription
+          keyvaults=$(az resource list --resource-type "Microsoft.KeyVault/vaults" --query "[].name" -o tsv)
 
           if [ -z "$keyvaults" ]; then
-            echo "No KeyVaults found in resource group ${RESOURCE_GROUP_NAME}."
+            echo "No KeyVaults found in the subscription."
             echo "KEYVAULTS=[]" >> $GITHUB_ENV  # If no KeyVaults found, set an empty array
           else
             echo "KeyVaults found: $keyvaults"
 
             # Format the list into an array with proper formatting (no trailing comma)
-            keyvault_array="["
+            keyvault_array="[" 
             first=true
             for kv in $keyvaults; do
               if [ "$first" = true ]; then
@@ -109,28 +85,20 @@ jobs:
             # Output the formatted array and save it to the environment variable
             echo "KEYVAULTS=$keyvault_array" >> $GITHUB_ENV
           fi
-          
+
       - name: Delete Bicep Deployment
         if: success()
         run: |
-          set -e  
-          echo "Checking if resource group exists..."
-          rg_exists=$(az group exists --name ${{ env.RESOURCE_GROUP_NAME }})
-          if [ "$rg_exists" = "true" ]; then
-            echo "Resource group exist. Cleaning..."
-            az group delete \
-                --name ${{ env.RESOURCE_GROUP_NAME }} \
-                --yes \
-                --no-wait
-            echo "Resource group deleted...  ${{ env.RESOURCE_GROUP_NAME }}"
-          else
-            echo "Resource group does not exists."
-          fi
+          set -e
+          echo "Deleting the resources from the subscription..."
+          az deployment sub delete \
+            --name ${{ env.SOLUTION_PREFIX }} \
+            --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }} \
+            --yes --no-wait
 
       - name: Wait for resource deletion to complete
         run: |
-
-          # List of keyvaults 
+          # List of KeyVaults and additional resources
           KEYVAULTS="${{ env.KEYVAULTS }}"
 
           # Remove the surrounding square brackets, if they exist
@@ -143,9 +111,9 @@ jobs:
           resources_to_check+=("${{ env.SOLUTION_PREFIX }}-openai" "${{ env.SOLUTION_PREFIX }}-cogser")
 
           echo "List of resources to check: ${resources_to_check[@]}"
-         
+
           # Get the list of resources in YAML format
-          resource_list=$(az resource list --resource-group ${{ env.RESOURCE_GROUP_NAME }} --output yaml)
+          resource_list=$(az resource list --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }} --output yaml)
 
           # Maximum number of retries
           max_retries=3
@@ -162,10 +130,10 @@ jobs:
             for resource in "${resources_to_check[@]}"; do
               echo "Checking resource: $resource"
               if echo "$resource_list" | grep -q "name: $resource"; then
-                echo "Resource '$resource' exists in the resource group."
+                echo "Resource '$resource' exists in the subscription."
                 resource_found=true
               else
-                echo "Resource '$resource' does not exist in the resource group."
+                echo "Resource '$resource' does not exist in the subscription."
               fi
             done
 
@@ -189,7 +157,6 @@ jobs:
       - name: Purging the Resources
         if: success()
         run: |
-
           set -e 
           # Define variables
           OPENAI_COMMON_PART="-openai"
@@ -202,7 +169,7 @@ jobs:
 
           # Purge OpenAI Resource
           echo "Purging the OpenAI Resource..."
-          if ! az resource delete --ids /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/providers/Microsoft.CognitiveServices/locations/uksouth/resourceGroups/${{ env.RESOURCE_GROUP_NAME }}/deletedAccounts/$openai_name --verbose; then
+          if ! az resource delete --ids /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/providers/Microsoft.CognitiveServices/locations/uksouth/deletedAccounts/$openai_name --verbose; then
             echo "Failed to purge openai resource: $openai_name"
           else
             echo "Purged the openai resource: $openai_name"
@@ -210,7 +177,7 @@ jobs:
    
           # Purge MultiService Account Resource
           echo "Purging the MultiService Account Resource..."
-          if ! az resource delete --ids /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/providers/Microsoft.CognitiveServices/locations/uksouth/resourceGroups/${{ env.RESOURCE_GROUP_NAME }}/deletedAccounts/$multiservice_account_name --verbose; then
+          if ! az resource delete --ids /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/providers/Microsoft.CognitiveServices/locations/uksouth/deletedAccounts/$multiservice_account_name --verbose; then
             echo "Failed to purge multiService account resource: $multiservice_account_name"
           else
             echo "Purged the multiService account resource: $multiservice_account_name"
