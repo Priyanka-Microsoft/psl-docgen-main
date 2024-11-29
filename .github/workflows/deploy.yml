@@ -50,6 +50,7 @@ jobs:
           set -e
           echo "Deploying Bicep template at the subscription level...."
           az deployment sub create \
+            --location WestUS \
             --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }} \
             --template-file infra/main.bicep \
             --parameters \
@@ -57,6 +58,7 @@ jobs:
                 authClientSecret=${{ secrets.AZURE_CLIENT_SECRET }} \
                 environmentName=maintenance \
                 location=EastUS
+                policyName="policy2"
 
       - name: List KeyVaults and Store in Array
         id: list_keyvaults
