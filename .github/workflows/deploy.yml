@@ -57,7 +57,7 @@ jobs:
                 authClientId=${{ secrets.AZURE_CLIENT_ID }} \
                 authClientSecret=${{ secrets.AZURE_CLIENT_SECRET }} \
                 environmentName=maintenance \
-                location=EastUS
+                location=NorthCentralUS
                 policyName="policy2"
 
       - name: List KeyVaults and Store in Array
