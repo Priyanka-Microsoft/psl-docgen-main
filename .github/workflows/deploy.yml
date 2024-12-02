@@ -60,7 +60,6 @@ jobs:
                 authClientSecret=${{ secrets.AZURE_CLIENT_SECRET }} \
                 environmentName=maintenance \
                 location=NorthCentralUS \
-                policyName="policy2" \
                 principalId=${{ secrets.AZURE_PRINCIPAL_ID }}  # Added Principal ID
 
       - name: List KeyVaults and Store in Array
