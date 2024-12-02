@@ -29,6 +29,8 @@ jobs:
       - name: Login to Azure
         run: |
           az login --service-principal -u ${{ secrets.AZURE_CLIENT_ID }} -p ${{ secrets.AZURE_CLIENT_SECRET }} --tenant ${{ secrets.AZURE_TENANT_ID }}
+          # Check if service principal exists
+          az ad sp show --id ${{ secrets.AZURE_CLIENT_ID }}
 
       - name: Install Bicep CLI
         run: az bicep install
@@ -57,8 +59,9 @@ jobs:
                 authClientId=${{ secrets.AZURE_CLIENT_ID }} \
                 authClientSecret=${{ secrets.AZURE_CLIENT_SECRET }} \
                 environmentName=maintenance \
-                location=NorthCentralUS
-                policyName="policy2"
+                location=NorthCentralUS \
+                policyName="policy2" \
+                principalId=${{ secrets.AZURE_PRINCIPAL_ID }}  # Added Principal ID
 
       - name: List KeyVaults and Store in Array
         id: list_keyvaults
