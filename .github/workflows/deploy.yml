@@ -58,8 +58,6 @@ jobs:
             --template-file infrastructure/deployment.json \
             --parameters \
                 HostingPlanName=${{ env.SOLUTION_PREFIX }}-plan \
-                location=NorthCentralUS \
-                environmentName=${{ env.SOLUTION_PREFIX }} 
 
       - name: List KeyVaults and Store in Array
         id: list_keyvaults
