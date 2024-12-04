@@ -63,7 +63,7 @@ jobs:
                 environmentName=${{ env.ENVIRONMENT_NAME }} \
                 location=NorthCentralUS \
                 principalId=${{ secrets.AZURE_PRINCIPAL_ID }}  # Added Principal ID
-            -o json)  # Capture the full output as JSON
+            --output json)  # Capture the full output as JSON
 
           echo "Full Deployment Output: ${deployment_output}"
 
