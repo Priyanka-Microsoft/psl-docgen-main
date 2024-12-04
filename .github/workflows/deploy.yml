@@ -55,12 +55,6 @@ jobs:
             --location WestUS \
             --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }} \
             --template-file infrastructure/deployment.json \
-            --parameters \
-                authClientId=${{ secrets.AZURE_CLIENT_ID }} \
-                authClientSecret=${{ secrets.AZURE_CLIENT_SECRET }} \
-                environmentName=pri-maintenance \
-                location=NorthCentralUS \
-                principalId=${{ secrets.AZURE_PRINCIPAL_ID }}  # Added Principal ID
         
       - name: List KeyVaults and Store in Array
         id: list_keyvaults
