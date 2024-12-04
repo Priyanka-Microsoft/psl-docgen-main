@@ -63,15 +63,12 @@ jobs:
                 environmentName=${{ env.ENVIRONMENT_NAME }} \
                 location=NorthCentralUS \
                 principalId=${{ secrets.AZURE_PRINCIPAL_ID }}  # Added Principal ID
+            --query "properties.outputs.webAppName.value" -o tsv)
 
-      - name: Generate Web App Name Consistently
-        id: generate_webapp_name
-        run: |
-          set -e
-          # Generate webapp name dynamically using the solution prefix
-          webapp_name="${{ env.SOLUTION_PREFIX }}-webapp"
-          echo "WEBAPP_NAME=${webapp_name}" >> $GITHUB_ENV
-          echo "Generated WEBAPP_NAME: ${webapp_name}"
+          echo "Web App Name: ${deployment_output}"
+
+          # Save the Web App name to the GitHub Actions environment variable
+          echo "WEBAPP_NAME=${deployment_output}" >> $GITHUB_ENV
 
       - name: Update Web App Docker Configuration
         run: |
@@ -86,7 +83,7 @@ jobs:
           # Set up Web App with the correct ACR image
           az webapp config container set \
             --name $webapp_name \
-            --resource-group rg-pri-maintenance \
+            --resource-group rg-${{ env.ENVIRONMENT_NAME }} \
             --docker-custom-image-name "$container_registry/$image_name" \
             --docker-registry-server-url "https://$container_registry" \
             --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }} \
