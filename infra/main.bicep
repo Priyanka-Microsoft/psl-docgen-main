@@ -41,8 +41,6 @@ param openAISystemMessage string = 'You are an AI assistant that helps people fi
 param openAIStream bool = true
 param embeddingDeploymentName string = 'embedding'
 param embeddingModelName string = 'text-embedding-ada-002'
-param containerRegistry string = 'byocgacontainerreg.azurecr.io'
-param imageName string = 'webapp:dev'
 
 // Used for the Azure AD application
 param authClientId string
@@ -265,8 +263,6 @@ module searchRoleBackend 'core/security/role.bicep' = {
   }
 }
 
-
-
 output AZURE_LOCATION string = location
 output AZURE_TENANT_ID string = tenant().tenantId
 output AZURE_RESOURCE_GROUP string = resourceGroup.name
@@ -310,18 +306,3 @@ output AZURE_COSMOSDB_DATABASE string = cosmos.outputs.databaseName
 output AZURE_COSMOSDB_CONVERSATIONS_CONTAINER string = cosmos.outputs.containerName
 
 output AUTH_ISSUER_URI string = authIssuerUri
-
-// Docker container configuration for backend Web App
-module updateWebAppContainer 'core/webapp/container.bicep' = {
-  name: 'update-webapp-container'
-  scope: resourceGroup
-  params: {
-    webAppName: backend.outputs.name
-    containerRegistry: containerRegistry
-    imageName: imageName
-  }
-}
-
-// Outputs
-output AZURE_CONTAINER_IMAGE string = '${containerRegistry}/${imageName}'
-output AZURE_CONTAINER_REGISTRY string = containerRegistry
