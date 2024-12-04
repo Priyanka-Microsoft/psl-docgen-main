@@ -57,7 +57,6 @@ jobs:
             --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }} \
             --template-file infrastructure/deployment.json \
             --parameters \
-                environmentName=${{ env.SOLUTION_PREFIX }} \
                 location=NorthCentralUS \
                 principalId=${{ secrets.AZURE_PRINCIPAL_ID }}  # Added Principal ID
         
