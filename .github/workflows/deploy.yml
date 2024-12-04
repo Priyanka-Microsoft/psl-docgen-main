@@ -48,12 +48,12 @@ jobs:
           echo "ENVIRONMENT_NAME=${ENVIRONMENT_NAME}" >> $GITHUB_ENV
           echo "Generated SOLUTION_PREFIX: ${UNIQUE_SOLUTION_PREFIX}, ENVIRONMENT_NAME: ${ENVIRONMENT_NAME}"
 
-      - name: Deploy Template at Subscription Level
+      - name: Deploy Bicep Template at Subscription Level
         id: deploy
         run: |
           set -e
-          echo "Deploying template at the subscription level...."
-          az deployment sub create \
+          echo "Deploying bicep template at the subscription level...."
+          deployment_output=$(az deployment sub create \
             --location WestUS \
             --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }} \
             --template-file infra/main.bicep \
@@ -64,7 +64,7 @@ jobs:
                 location=NorthCentralUS \
                 principalId=${{ secrets.AZURE_PRINCIPAL_ID }}  # Added Principal ID
             --query "properties.outputs.webAppName.value" -o tsv)
-
+          
           echo "Web App Name: ${deployment_output}"
 
           # Save the Web App name to the GitHub Actions environment variable
