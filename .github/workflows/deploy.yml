@@ -1,11 +1,17 @@
 name: CI-Validate Deployment
 
 on:
-  push:
-    branches:
-      - main
-  schedule:
-    - cron: '0 6,18 * * *'  # Runs at 6:00 AM and 6:00 PM GMT
+    push:
+      branches:
+        - main  # Trigger on push to the main branch
+    pull_request:
+      branches:
+        - main  # Trigger on pull requests to the main branch
+      types:
+        - opened
+        - ready_for_review
+        - reopened
+        - synchronize
 
 jobs:
   deploy:
