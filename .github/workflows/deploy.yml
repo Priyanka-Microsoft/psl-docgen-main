@@ -63,12 +63,17 @@ jobs:
                 environmentName=${{ env.ENVIRONMENT_NAME }} \
                 location=NorthCentralUS \
                 principalId=${{ secrets.AZURE_PRINCIPAL_ID }}  # Added Principal ID
-            --query "properties.outputs.webAppName.value" -o tsv)
-          
-          echo "Web App Name: ${deployment_output}"
+            -o json)  # Capture the full output as JSON
+
+          echo "Full Deployment Output: ${deployment_output}"
+
+          # Extract the WebApp name from the deployment output
+          webapp_name=$(echo "${deployment_output}" | jq -r '.properties.outputs.webAppName.value')
+
+          echo "Web App Name: ${webapp_name}"
 
           # Save the Web App name to the GitHub Actions environment variable
-          echo "WEBAPP_NAME=${deployment_output}" >> $GITHUB_ENV
+          echo "WEBAPP_NAME=${webapp_name}" >> $GITHUB_ENV
 
       - name: Update Web App Docker Configuration
         run: |
