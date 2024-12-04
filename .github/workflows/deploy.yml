@@ -55,6 +55,7 @@ jobs:
             --location WestUS \
             --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }} \
             --template-file infrastructure/deployment.json \
+            --parameters HostingPlanName="${{ env.SOLUTION_PREFIX }}-plan"
         
       - name: List KeyVaults and Store in Array
         id: list_keyvaults
