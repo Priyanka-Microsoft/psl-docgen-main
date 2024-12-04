@@ -46,22 +46,23 @@ jobs:
           echo "SOLUTION_PREFIX=${UNIQUE_SOLUTION_PREFIX}" >> $GITHUB_ENV
           echo "Generated SOLUTION_PREFIX: ${UNIQUE_SOLUTION_PREFIX}"
 
-      - name: Deploy Bicep Template at Subscription Level
+      # Changed to use deployment.json instead of main.bicep
+      - name: Deploy ARM Template (JSON) at Subscription Level
         id: deploy
         run: |
           set -e
-          echo "Deploying Bicep template at the subscription level...."
+          echo "Deploying ARM template at the subscription level...."
           az deployment sub create \
             --location WestUS \
             --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }} \
-            --template-file infra/main.bicep \
+            --template-file infrastructure/deployment.json \
             --parameters \
                 authClientId=${{ secrets.AZURE_CLIENT_ID }} \
                 authClientSecret=${{ secrets.AZURE_CLIENT_SECRET }} \
-                environmentName=maintenance \
+                environmentName=${{ env.SOLUTION_PREFIX }} \
                 location=NorthCentralUS \
                 principalId=${{ secrets.AZURE_PRINCIPAL_ID }}  # Added Principal ID
-
+        
       - name: List KeyVaults and Store in Array
         id: list_keyvaults
         run: |
@@ -106,7 +107,7 @@ jobs:
             "body": "<p>Dear Team,</p><p>We would like to inform you that the Client Advisor Automation process has encountered an issue and has failed to complete successfully.</p><p><strong>Build URL:</strong> ${RUN_URL}<br> ${OUTPUT}</p><p>Please investigate the matter at your earliest convenience.</p><p>Best regards,<br>Your Automation Team</p>"
           }
           EOF
-          
+          )
       
           # Send the notification
           curl -X POST "${{ secrets.LOGIC_APP_URL }}" \
