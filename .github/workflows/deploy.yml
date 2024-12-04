@@ -46,7 +46,7 @@ jobs:
           echo "SOLUTION_PREFIX=${UNIQUE_SOLUTION_PREFIX}" >> $GITHUB_ENV
           echo "Generated SOLUTION_PREFIX: ${UNIQUE_SOLUTION_PREFIX}"
 
-      # Changed to use deployment.json instead of main.bicep
+      # Deploy ARM Template at Subscription Level
       - name: Deploy ARM Template (JSON) at Subscription Level
         id: deploy
         run: |
@@ -56,7 +56,14 @@ jobs:
             --location NorthCentralUS \
             --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }} \
             --template-file infrastructure/deployment.json \
-           
+            --parameters \
+                authClientId=${{ secrets.AZURE_CLIENT_ID }} \
+                authClientSecret=${{ secrets.AZURE_CLIENT_SECRET }} \
+                environmentName=${{ env.SOLUTION_PREFIX }} \
+                location=NorthCentralUS \
+                hostingPlanName=${{ env.SOLUTION_PREFIX }}-plan \
+                # Add any additional parameters your ARM template needs here
+
       - name: List KeyVaults and Store in Array
         id: list_keyvaults
         run: |
@@ -92,9 +99,8 @@ jobs:
       - name: Send Notification on Failure
         if: failure()
         run: |
-
           RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-      
+
           # Construct the email body
           EMAIL_BODY=$(cat <<EOF
           {
