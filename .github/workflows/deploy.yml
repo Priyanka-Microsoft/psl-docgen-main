@@ -68,7 +68,7 @@ jobs:
           echo "Updating the Web App to use the ACR Docker image..."
         
           # Define the resource name and image details
-          webapp_name="${{ env.SOLUTION_PREFIX }}-webapp"  # Replace with your actual WebApp name
+          webapp_name=app-backend-26frbatcmsycy  # Replace with your actual WebApp name
           container_registry="byocgacontainerreg.azurecr.io"
           image_name="webapp:dev"
         
