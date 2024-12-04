@@ -58,9 +58,16 @@ jobs:
             --parameters \
                 authClientId=${{ secrets.AZURE_CLIENT_ID }} \
                 authClientSecret=${{ secrets.AZURE_CLIENT_SECRET }} \
-                environmentName=${{ env.SOLUTION_PREFIX }} \
+                environmentName=maintenance \
                 location=NorthCentralUS \
                 principalId=${{ secrets.AZURE_PRINCIPAL_ID }}  # Added Principal ID
+
+      - name: Point to Container Registry
+        run: |
+          # Assuming container registry is referenced by a variable
+          container_registry="${{ secrets.AZURE_CONTAINER_REGISTRY_NAME }}"
+          echo "Logging in to the Azure Container Registry: $container_registry"
+          az acr login --name $container_registry
         
       - name: List KeyVaults and Store in Array
         id: list_keyvaults
