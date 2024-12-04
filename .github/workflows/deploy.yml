@@ -53,11 +53,10 @@ jobs:
           set -e
           echo "Deploying ARM template at the subscription level...."
           az deployment sub create \
-            --location WestUS \
+            --location NorthCentralUS \
             --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }} \
             --template-file infrastructure/deployment.json \
             --parameters \
-                location=NorthCentralUS \
                 principalId=${{ secrets.AZURE_PRINCIPAL_ID }}  # Added Principal ID
         
       - name: List KeyVaults and Store in Array
