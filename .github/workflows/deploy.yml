@@ -53,8 +53,8 @@ jobs:
         run: |
           set -e
           echo "Deploying arm template at the subscription level...."
-          deployment_output=$(az deployment sub create \
-            --location WestUS \
+          az deployment sub create \
+            --location "$region" \
             --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }} \
             --template-file infrastructure/deployment.json \
             --parameters \
@@ -63,11 +63,11 @@ jobs:
                 WebsiteName="webapp-${{ env.SOLUTION_PREFIX }}" \
                 CosmosDBName="db-cosmos-${{ env.SOLUTION_PREFIX }}" \
                 CosmosDBRegion="NorthCentralUS" \
-                location=<region> \
+                location="$region" \
                 AzureSearchService="search-${{ env.SOLUTION_PREFIX }}" \
                 AzureOpenAIResource="aoai-${{ env.SOLUTION_PREFIX }}" \
                 WorkspaceName="worksp-${{ env.SOLUTION_PREFIX }}" 
-            --output json)
+            --output json
 
           # Extract the webapp name from JSON response using jq
           webapp_name=$(echo $deployment_output | jq -r .)
