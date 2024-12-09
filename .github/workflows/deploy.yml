@@ -48,16 +48,16 @@ jobs:
           echo "ENVIRONMENT_NAME=${ENVIRONMENT_NAME}" >> $GITHUB_ENV
           echo "Generated SOLUTION_PREFIX: ${UNIQUE_SOLUTION_PREFIX}, ENVIRONMENT_NAME: ${ENVIRONMENT_NAME}"
 
-      - name: Deploy Bicep Template at Subscription Level
+      - name: Deploy ARM Template at Subscription Level
         id: deploy
         run: |
           set -e
-          echo "Deploying bicep template at the subscription level...."
+          echo "Deploying arm template at the subscription level...."
           deployment_output=$(az deployment sub create \
             --location WestUS \
             --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }} \
             --template-file infrastructure/deployment.json \
-            --query "properties.outputs.webappName.value" --output json)
+            --output json)
 
           # Extract the webapp name from JSON response using jq
           webapp_name=$(echo $deployment_output | jq -r .)
