@@ -64,6 +64,7 @@ jobs:
                 CosmosDBName="${{ env.SOLUTION_PREFIX }}-cosmodb" \
                 CosmosDBRegion="NorthCentralUS" \
                 AzureSearchService="${{ env.SOLUTION_PREFIX }}-seachai" \
+                AzureOpenAIResource="${{ env.SOLUTION_PREFIX }}-aoai" \
                 WorkspaceName="${{ env.SOLUTION_PREFIX }}-workspace" 
             --output json)
 
