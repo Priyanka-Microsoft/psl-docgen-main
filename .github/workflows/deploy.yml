@@ -63,7 +63,6 @@ jobs:
                 WebsiteName="webapp-${{ env.SOLUTION_PREFIX }}" \
                 CosmosDBName="db-cosmos-${{ env.SOLUTION_PREFIX }}" \
                 CosmosDBRegion="NorthCentralUS" \
-                location="$region" \
                 AzureSearchService="search-${{ env.SOLUTION_PREFIX }}" \
                 AzureOpenAIResource="aoai-${{ env.SOLUTION_PREFIX }}" \
                 WorkspaceName="worksp-${{ env.SOLUTION_PREFIX }}" 
