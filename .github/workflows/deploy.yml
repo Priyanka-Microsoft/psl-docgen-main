@@ -59,6 +59,7 @@ jobs:
             --template-file infrastructure/deployment.json \
             --parameters \
                 HostingPlanName="${{ env.SOLUTION_PREFIX }}-plan" \
+                WorkspaceName="${{ env.SOLUTION_PREFIX }}-workspace" 
             --output json)
 
           # Extract the webapp name from JSON response using jq
