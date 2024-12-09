@@ -59,6 +59,7 @@ jobs:
             --template-file infrastructure/deployment.json \
             --parameters \
                 HostingPlanName="${{ env.SOLUTION_PREFIX }}-plan" \
+                ApplicationInsightsName="${{ env.SOLUTION_PREFIX }}-appInsights" \
                 WorkspaceName="${{ env.SOLUTION_PREFIX }}-workspace" 
             --output json)
 
