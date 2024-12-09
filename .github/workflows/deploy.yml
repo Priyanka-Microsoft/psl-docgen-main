@@ -59,13 +59,14 @@ jobs:
             --template-file infrastructure/deployment.json \
             --parameters \
                 HostingPlanName="${{ env.SOLUTION_PREFIX }}-plan" \
-                ApplicationInsightsName="${{ env.SOLUTION_PREFIX }}-appInsights" \
-                WebsiteName="${{ env.SOLUTION_PREFIX }}-webapp" \
-                CosmosDBName="${{ env.SOLUTION_PREFIX }}-cosmodb" \
+                ApplicationInsightsName="appins-${{ env.SOLUTION_PREFIX }}" \
+                WebsiteName="webapp-${{ env.SOLUTION_PREFIX }}" \
+                CosmosDBName="db-cosmos-${{ env.SOLUTION_PREFIX }}" \
                 CosmosDBRegion="NorthCentralUS" \
-                AzureSearchService="${{ env.SOLUTION_PREFIX }}-seachai" \
-                AzureOpenAIResource="${{ env.SOLUTION_PREFIX }}-aoai" \
-                WorkspaceName="${{ env.SOLUTION_PREFIX }}-workspace" 
+                location=<region> \
+                AzureSearchService="search-${{ env.SOLUTION_PREFIX }}" \
+                AzureOpenAIResource="aoai-${{ env.SOLUTION_PREFIX }}" \
+                WorkspaceName="worksp-${{ env.SOLUTION_PREFIX }}" 
             --output json)
 
           # Extract the webapp name from JSON response using jq
