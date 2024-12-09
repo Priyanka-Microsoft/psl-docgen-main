@@ -67,7 +67,7 @@
     },
     "CosmosDBRegion": {
       "type": "string",
-      "defaultValue": "[parameters('location')]",
+      "defaultValue": "[resourceGroup().location]",
       "metadata": {
         "description": "Default value is the region selected above. To change the region for Cosmos DB, enter the region name. Example: eastus, westus, etc."
       }
@@ -260,10 +260,6 @@
       "metadata": {
         "description": "Whether or not to stream responses from Azure OpenAI? True or False."
       }
-    },
-    "location": {
-      "type": "string",
-      "defaultValue": "WestUS"
     }
   },
   "variables": {
@@ -282,7 +278,7 @@
       "type": "Microsoft.CognitiveServices/accounts",
       "apiVersion": "2023-05-01",
       "name": "[parameters('AzureOpenAIResource')]",
-      "location": "[parameters('location')]",
+      "location": "[resourceGroup().location]",
       "kind": "OpenAI",
       "sku": {
         "name": "S0"
@@ -335,7 +331,7 @@
       "type": "Microsoft.Search/searchServices",
       "apiVersion": "2021-04-01-preview",
       "name": "[parameters('AzureSearchService')]",
-      "location": "[parameters('location')]",
+      "location": "[resourceGroup().location]",
       "sku": {
         "name": "standard"
       },
@@ -347,7 +343,7 @@
       "type": "Microsoft.Web/serverfarms",
       "apiVersion": "2020-06-01",
       "name": "[parameters('HostingPlanName')]",
-      "location": "[parameters('location')]",
+      "location": "[resourceGroup().location]",
       "sku": {
         "name": "[parameters('HostingPlanSku')]"
       },
@@ -360,7 +356,7 @@
       "type": "Microsoft.Web/sites",
       "apiVersion": "2020-06-01",
       "name": "[parameters('WebsiteName')]",
-      "location": "[parameters('location')]",
+      "location": "[resourceGroup().location]",
       "identity": {
         "type": "SystemAssigned"
       },
@@ -531,7 +527,7 @@
       "type": "Microsoft.OperationalInsights/workspaces",
       "apiVersion": "2020-08-01",
       "name": "[parameters('WorkspaceName')]",
-      "location": "[parameters('location')]",
+      "location": "[resourceGroup().location]",
       "properties": {
         "sku": {
           "name": "PerGB2018"
@@ -543,7 +539,7 @@
       "type": "Microsoft.Insights/components",
       "apiVersion": "2020-02-02",
       "name": "[parameters('ApplicationInsightsName')]",
-      "location": "[parameters('location')]",
+      "location": "[resourceGroup().location]",
       "tags": {
         "[format('hidden-link:{0}', resourceId('Microsoft.Web/sites', parameters('ApplicationInsightsName')))]": "Resource"
       },
