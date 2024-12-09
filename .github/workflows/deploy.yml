@@ -56,7 +56,7 @@ jobs:
           deployment_output=$(az deployment sub create \
             --location WestUS \
             --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }} \
-            --template-file infra/main.bicep \
+            --template-file infrastructure/deployment.json \
             --parameters \
                 authClientId=${{ secrets.AZURE_CLIENT_ID }} \
                 authClientSecret=${{ secrets.AZURE_CLIENT_SECRET }} \
@@ -69,26 +69,6 @@ jobs:
           webapp_name=$(echo $deployment_output | jq -r .)
           echo "webapp_name=$webapp_name" >> $GITHUB_ENV
           echo "Deployment completed with webapp_name: $webapp_name"
-
-      - name: Update Web App Docker Configuration
-        run: |
-          set -e
-          echo "Updating the Web App to use the ACR Docker image..."
-          
-          # Use the dynamically retrieved web app name from the deployment step
-          webapp_name=${{ env.webapp_name }}
-          container_registry="byocgacontainerreg.azurecr.io"
-          image_name="webapp:dev"
-        
-          # Set up Web App with the correct ACR image
-          az webapp config container set \
-            --name $webapp_name \
-            --resource-group rg-${{ env.ENVIRONMENT_NAME }} \
-            --docker-custom-image-name "$container_registry/$image_name" \
-            --docker-registry-server-url "https://$container_registry" \
-            --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }} \
-            --query "containerSettings" \
-            --output json
 
       - name: List KeyVaults and Store in Array
         id: list_keyvaults
