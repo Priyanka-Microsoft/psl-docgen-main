@@ -57,6 +57,8 @@ jobs:
             --location WestUS \
             --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }} \
             --template-file infrastructure/deployment.json \
+            --parameters \
+                HostingPlanName="${{ env.SOLUTION_PREFIX }}-plan" \
             --output json)
 
           # Extract the webapp name from JSON response using jq
