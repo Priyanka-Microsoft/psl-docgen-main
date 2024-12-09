@@ -60,6 +60,8 @@ jobs:
             --parameters \
                 HostingPlanName="${{ env.SOLUTION_PREFIX }}-plan" \
                 ApplicationInsightsName="${{ env.SOLUTION_PREFIX }}-appInsights" \
+                WebsiteName="${{ env.SOLUTION_PREFIX }}-webapp" \
+                CosmosDBName="${{ env.SOLUTION_PREFIX }}-cosmodb" \
                 WorkspaceName="${{ env.SOLUTION_PREFIX }}-workspace" 
             --output json)
 
