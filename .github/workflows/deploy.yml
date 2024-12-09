@@ -62,6 +62,8 @@ jobs:
                 ApplicationInsightsName="${{ env.SOLUTION_PREFIX }}-appInsights" \
                 WebsiteName="${{ env.SOLUTION_PREFIX }}-webapp" \
                 CosmosDBName="${{ env.SOLUTION_PREFIX }}-cosmodb" \
+                CosmosDBRegion="NorthCentralUS" \
+                AzureSearchService="${{ env.SOLUTION_PREFIX }}-seachai" \
                 WorkspaceName="${{ env.SOLUTION_PREFIX }}-workspace" 
             --output json)
 
