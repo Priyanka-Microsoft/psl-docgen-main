@@ -58,8 +58,6 @@ jobs:
             --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }} \
             --template-file infrastructure/deployment.json \
             --parameters \
-                authClientId=${{ secrets.AZURE_CLIENT_ID }} \
-                authClientSecret=${{ secrets.AZURE_CLIENT_SECRET }} \
                 environmentName=${{ env.ENVIRONMENT_NAME }} \
                 location=NorthCentralUS \
                 principalId=${{ secrets.AZURE_PRINCIPAL_ID }} \
