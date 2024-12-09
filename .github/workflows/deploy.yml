@@ -86,13 +86,13 @@ jobs:
       - name: Wait for Resource Deletion to Complete
         run: |
           # List of resources to check based on SOLUTION_PREFIX
-          resources_to_check=(
-            "aoai-${{ env.SOLUTION_PREFIX }}"
-            "appins-${{ env.SOLUTION_PREFIX }}"
-            "db-cosmos-${{ env.SOLUTION_PREFIX }}"
-            "${{ env.SOLUTION_PREFIX }}-plan"
-            "search-${{ env.SOLUTION_PREFIX }}"
-            "webapp-${{ env.SOLUTION_PREFIX }}"
+          resources_to_check=( 
+            "aoai-${{ env.SOLUTION_PREFIX }}" 
+            "appins-${{ env.SOLUTION_PREFIX }}" 
+            "db-cosmos-${{ env.SOLUTION_PREFIX }}" 
+            "${{ env.SOLUTION_PREFIX }}-plan" 
+            "search-${{ env.SOLUTION_PREFIX }}" 
+            "webapp-${{ env.SOLUTION_PREFIX }}" 
             "worksp-${{ env.SOLUTION_PREFIX }}"
           )
 
@@ -153,28 +153,28 @@ jobs:
           
           for resource in "${resources_to_purge[@]}"; do
             echo "Purging resource: $resource"
-            if ! az resource delete --ids /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/providers/Microsoft.CognitiveServices/locations/uksouth/deletedAccounts/$resource --verbose; then
-              echo "Failed to purge resource: $resource"
+            # Delete db-cosmos specifically
+            if [[ "$resource" == "db-cosmos-${{ env.SOLUTION_PREFIX }}" ]]; then
+              echo "Deleting Cosmos DB resource"
+              az cosmosdb delete --name $resource --resource-group ${{ env.RESOURCE_GROUP_NAME }} --yes --verbose
             else
-              echo "Purged the resource: $resource"
+              echo "Purging other resources: $resource"
+              az resource delete --name $resource --resource-group ${{ env.RESOURCE_GROUP_NAME }} --verbose
             fi
           done
 
           echo "Resource purging completed successfully"
 
-      - name: Delete Bicep Deployment
+      - name: Delete Resource Group
         if: success()
         run: |
-          set -e  
+          set -e
           echo "Checking if resource group exists..."
           rg_exists=$(az group exists --name ${{ env.RESOURCE_GROUP_NAME }})
           if [ "$rg_exists" = "true" ]; then
-            echo "Resource group exists. Cleaning..."
-            az group delete \
-                --name ${{ env.RESOURCE_GROUP_NAME }} \
-                --yes \
-                --no-wait
-            echo "Resource group deleted...  ${{ env.RESOURCE_GROUP_NAME }}"
+            echo "Resource group exists. Deleting..."
+            az group delete --name ${{ env.RESOURCE_GROUP_NAME }} --yes --no-wait
+            echo "Resource group deleted: ${{ env.RESOURCE_GROUP_NAME }}"
           else
             echo "Resource group does not exist."
           fi
