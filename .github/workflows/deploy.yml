@@ -82,6 +82,23 @@ jobs:
                 AzureSearchService="search-${{ env.SOLUTION_PREFIX }}" \
                 AzureOpenAIResource="aoai-${{ env.SOLUTION_PREFIX }}" \
                 WorkspaceName="worksp-${{ env.SOLUTION_PREFIX }}" 
+      
+      - name: Delete Bicep Deployment
+        if: success()
+        run: |
+          set -e  
+          echo "Checking if resource group exists..."
+          rg_exists=$(az group exists --name ${{ env.RESOURCE_GROUP_NAME }})
+          if [ "$rg_exists" = "true" ]; then
+            echo "Resource group exists. Cleaning..."
+            az group delete \
+                --name ${{ env.RESOURCE_GROUP_NAME }} \
+                --yes \
+                --no-wait
+            echo "Resource group deleted...  ${{ env.RESOURCE_GROUP_NAME }}"
+          else
+            echo "Resource group does not exist."
+          fi
 
       - name: Wait for Resource Deletion to Complete
         run: |
@@ -161,37 +178,6 @@ jobs:
           done
 
           echo "Resource purging completed successfully"
-    
-      - name: Delete Resource Group
-        if: success()
-        run: |
-          set -e
-          echo "Checking if resource group exists..."
-          rg_exists=$(az group exists --name ${{ env.RESOURCE_GROUP_NAME }})
-          if [ "$rg_exists" = "true" ]; then
-            echo "Resource group exists. Deleting..."
-            az group delete --name ${{ env.RESOURCE_GROUP_NAME }} --yes --no-wait
-            echo "Resource group deleted: ${{ env.RESOURCE_GROUP_NAME }}"
-          else
-            echo "Resource group does not exist."
-          fi
-
-      - name: Delete Bicep Deployment
-        if: success()
-        run: |
-          set -e  
-          echo "Checking if resource group exists..."
-          rg_exists=$(az group exists --name ${{ env.RESOURCE_GROUP_NAME }})
-          if [ "$rg_exists" = "true" ]; then
-            echo "Resource group exists. Cleaning..."
-            az group delete \
-                --name ${{ env.RESOURCE_GROUP_NAME }} \
-                --yes \
-                --no-wait
-            echo "Resource group deleted...  ${{ env.RESOURCE_GROUP_NAME }}"
-          else
-            echo "Resource group does not exist."
-          fi
 
       - name: Send Notification on Failure
         if: failure()
@@ -208,3 +194,4 @@ jobs:
           curl -X POST "${{ secrets.LOGIC_APP_URL }}" \
             -H "Content-Type: application/json" \
             -d "$EMAIL_BODY" || echo "Failed to send notification"
+
