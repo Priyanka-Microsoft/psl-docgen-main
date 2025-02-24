@@ -1,15 +1,18 @@
 #!/bin/bash
 
 # List of Azure regions to check for quota (update as needed)
-REGIONS=("northcentralus" "westus" "centralus" "uksouth" "eastus2")
+REGIONS=("northcentralus")
 
 SUBSCRIPTION_ID="${AZURE_SUBSCRIPTION_ID}"
 GPT_MIN_CAPACITY="${GPT_MIN_CAPACITY}"
-TEXT_EMBEDDING_MIN_CAPACITY="${TEXT_EMBEDDING_MIN_CAPACITY}"
+COSMOS_DB_MIN_CAPACITY="${COSMOS_DB_MIN_CAPACITY}"
+AZURE_CLIENT_ID="${AZURE_CLIENT_ID}"
+AZURE_TENANT_ID="${AZURE_TENANT_ID}"
+AZURE_CLIENT_SECRET="${AZURE_CLIENT_SECRET}"
 
 # Authenticate using Managed Identity
 echo "Authentication using Managed Identity..."
-if ! az login --identity; then
+if ! az login --service-principal -u "$AZURE_CLIENT_ID" -p "$AZURE_CLIENT_SECRET" --tenant "$AZURE_TENANT_ID"; then
    echo "❌ Error: Failed to login using Managed Identity."
    exit 1
 fi
@@ -30,7 +33,7 @@ echo "✅ Azure subscription set successfully."
 # Define models and their minimum required capacities
 declare -A MIN_CAPACITY=(
     ["OpenAI.Standard.gpt-4o"]=$GPT_MIN_CAPACITY
-    # ["OpenAI.Standard.text-embedding-ada-002"]=$TEXT_EMBEDDING_MIN_CAPACITY
+    ["Microsoft.DocumentDb"]=$COSMOS_DB_MIN_CAPACITY
 )
 
 VALID_REGION=""
