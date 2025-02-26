@@ -5,7 +5,7 @@ IFS=' ' read -ra REGIONS <<< "$AZURE_REGIONS"
 
 SUBSCRIPTION_ID="${AZURE_SUBSCRIPTION_ID}"
 GPT_MIN_CAPACITY="${GPT_MIN_CAPACITY}"
-COSMOS_DB_MIN_CAPACITY="${COSMOS_DB_MIN_CAPACITY}"
+TEXT_EMBEDDING_MIN_CAPACITY="${TEXT_EMBEDDING_MIN_CAPACITY}"
 AZURE_CLIENT_ID="${AZURE_CLIENT_ID}"
 AZURE_TENANT_ID="${AZURE_TENANT_ID}"
 AZURE_CLIENT_SECRET="${AZURE_CLIENT_SECRET}"
@@ -18,7 +18,7 @@ if ! az login --service-principal -u "$AZURE_CLIENT_ID" -p "$AZURE_CLIENT_SECRET
 fi
 
 echo "🔄 Validating required environment variables..."
-if [[ -z "$SUBSCRIPTION_ID" || -z "$GPT_MIN_CAPACITY" || -z "$COSMOS_DB_MIN_CAPACITY" || -z "$REGIONS"  ]]; then
+if [[ -z "$SUBSCRIPTION_ID" || -z "$GPT_MIN_CAPACITY" || -z "$TEXT_EMBEDDING_MIN_CAPACITY" || -z "$REGIONS" ]]; then
     echo "❌ ERROR: Missing required environment variables."
     exit 1
 fi
@@ -33,7 +33,7 @@ echo "✅ Azure subscription set successfully."
 # Define models and their minimum required capacities
 declare -A MIN_CAPACITY=(
     ["OpenAI.Standard.gpt-4o"]=$GPT_MIN_CAPACITY
-    ["Microsoft.DocumentDb"]=$COSMOS_DB_MIN_CAPACITY
+    ["OpenAI.Standard.text-embedding-ada-002"]=$TEXT_EMBEDDING_MIN_CAPACITY
 )
 
 VALID_REGION=""
